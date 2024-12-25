@@ -1,4 +1,8 @@
 import './App.css'
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
 import React, {
   useCallback,
@@ -14,6 +18,9 @@ import {
   NumberEditorModule,
   TextEditorModule,
 } from "ag-grid-community";
+import Button from '@mui/material/Button';
+import AddItem from './Components/AddItem/AddItem';
+import { STATUSES } from './shared/statuses';
 
 
 export interface IExpenseData {
@@ -28,10 +35,13 @@ ModuleRegistry.registerModules([
   ClientSideRowModelModule,
 ]);
 
-const GridExample = () => {
+const App = () => {
   const containerStyle = useMemo(() => ({ width: "100vw", height: "100vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
-  const [rowData, setRowData] = useState<IExpenseData[]>();
+  
+  const [rowData, setRowData] = useState<IExpenseData[]>([]);
+  const [status, setStatus] = useState(STATUSES.INITIAL);
+
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([
     { field: "description" },
     { field: "amount" },
@@ -66,6 +76,16 @@ const GridExample = () => {
         console.log('rowData', rowData);
       }}>Log</button>
       </div>
+      <div>
+        {status === STATUSES.INITIAL && <Button
+          variant="outlined"
+          className='main-buttons'
+          onClick={() => {
+            setStatus(STATUSES.ADDING_ITEM);
+          }}>Agregar artículo</Button>
+        }
+      </div>
+      {status === STATUSES.ADDING_ITEM && <AddItem setMainData={setRowData} setStatus={setStatus}/>}
       <div style={gridStyle}>
         <AgGridReact<IExpenseData>
           rowData={rowData}
@@ -78,4 +98,4 @@ const GridExample = () => {
   );
 };
 
-export default GridExample;
+export default App;
