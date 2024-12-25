@@ -1,35 +1,81 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
+import { AgGridReact } from "ag-grid-react";
+import {
+  ClientSideRowModelModule,
+  ColDef,
+  GridReadyEvent,
+  ModuleRegistry,
+  NumberEditorModule,
+  TextEditorModule,
+} from "ag-grid-community";
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+export interface IExpenseData {
+  description: string,
+  amount: number,
+  date: string,
 }
 
-export default App
+ModuleRegistry.registerModules([
+  NumberEditorModule,
+  TextEditorModule,
+  ClientSideRowModelModule,
+]);
+
+const GridExample = () => {
+  const containerStyle = useMemo(() => ({ width: "100vw", height: "100vh" }), []);
+  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const [rowData, setRowData] = useState<IExpenseData[]>();
+  const [columnDefs, setColumnDefs] = useState<ColDef[]>([
+    { field: "description" },
+    { field: "amount" },
+    { field: "date" },
+  ]);
+  const defaultColDef = useMemo<ColDef>(() => {
+    return {
+      editable: true,
+    };
+  }, []);
+
+  const onGridReady = useCallback((params: GridReadyEvent) => {
+      Promise.resolve([
+        {
+          "description": "frutería",
+          "amount": 10,
+          "date": "2024-12-25"
+        },
+        {
+          "description": "Panecito",
+          "amount": 11,
+          "date": "2024-12-26"
+        }
+      ])
+      .then((data: IExpenseData[]) => setRowData(data));
+  }, []);
+
+  return (
+    <div style={containerStyle}>
+      <div>
+        <button onClick={() => {
+        console.log('rowData', rowData);
+      }}>Log</button>
+      </div>
+      <div style={gridStyle}>
+        <AgGridReact<IExpenseData>
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          onGridReady={onGridReady}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default GridExample;
