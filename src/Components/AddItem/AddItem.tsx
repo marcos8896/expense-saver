@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import './AddItem.css';
 import { STATUSES } from '../../shared/statuses';
 import { IExpenseData } from '../../App';
+import { v4 as uuidv4 } from 'uuid';
 
 interface IAddItem { 
   setMainData: React.Dispatch<React.SetStateAction<IExpenseData[]>>,
@@ -11,7 +12,7 @@ interface IAddItem {
 }
 
 function AddItem({ setStatus, setMainData }: IAddItem) {
-  const [newItem, setNewItem] = useState<IExpenseData>({ description: "", amount: 0, date: "" });
+  const [newItem, setNewItem] = useState<IExpenseData>({ id: "", description: "", amount: 0, date: "" });
   return (
   <div className='add-item-container-inputs'>
     <TextField 
@@ -52,7 +53,7 @@ function AddItem({ setStatus, setMainData }: IAddItem) {
         className='main-buttons'
         disabled={newItem.description.length === 0 || newItem.date.length === 0}
         onClick={() => {
-          const newItemToInsert = {...newItem};
+          const newItemToInsert = {...newItem, id: uuidv4()};
           setStatus(STATUSES.INITIAL);
           setMainData((prevState) => {
             return [

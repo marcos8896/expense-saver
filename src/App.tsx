@@ -10,19 +10,16 @@ import React, {
 } from "react";
 import Button from '@mui/material/Button';
 
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { DataGrid, GridColDef, GridActionsCellItem, GridRowId } from '@mui/x-data-grid';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 
 import AddItem from './Components/AddItem/AddItem';
 import { STATUSES } from './shared/statuses';
 
 
 export interface IExpenseData {
+  id: string,
   description: string,
   amount: number,
   date: string,
@@ -30,16 +27,48 @@ export interface IExpenseData {
 
 const App = () => {
   const [rowData, setRowData] = useState<IExpenseData[]>([]);
+
   const [status, setStatus] = useState(STATUSES.INITIAL);
+  const handleDeleteClick = (id: GridRowId) => () => {
+    setRowData(rows => {
+      return rows.filter((row) => row.id !== id); 
+    });
+  };
+
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: 'ID', width: 70 },
+    { field: 'description', headerName: 'Description', editable: true },
+    { field: 'amount', headerName: 'Cantidad', width: 130, editable: true },
+    { field: 'date', headerName: 'Fecha', width: 200, editable: true },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      cellClassName: 'actions',
+      getActions: ({ id }) => {
+        return [
+          <GridActionsCellItem
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={handleDeleteClick(id)}
+            color="inherit"
+          />,
+        ];
+      },
+    }
+  ];
 
   useEffect(() => {
     Promise.resolve([
       {
+        "id": '2b12edbc-562a-447e-a8e2-8b180c77d106',
         "description": "Frutería",
         "amount": 10,
         "date": "2024-12-25"
       },
       {
+        "id": '0c7f4650-4266-4062-b249-7da4be3c3cf3',
         "description": "Panecito",
         "amount": 11,
         "date": "2024-12-26"
@@ -65,30 +94,23 @@ const App = () => {
         }
       </div>
       {status === STATUSES.ADDING_ITEM && <AddItem setMainData={setRowData} setStatus={setStatus}/>}
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Descripción</TableCell>
-              <TableCell align="right">Cantidad</TableCell>
-              <TableCell align="right">Fecha</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rowData.map((row) => (
-              <TableRow
-                key={row.description}
-              >
-                <TableCell component="th" scope="row">
-                  {row.description}
-                </TableCell>
-                <TableCell align="right">{row.amount}</TableCell>
-                <TableCell align="right">{row.date}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Paper sx={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={rowData}
+          columns={columns}
+          initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
+          pageSizeOptions={[5, 10]}
+          checkboxSelection
+          sx={{ border: 0 }}
+          processRowUpdate={(updatedRow) => {
+            const updatedRows = rowData.map((row) =>
+              row.id === updatedRow.id ? { ...row, ...updatedRow } : row
+            );
+            setRowData(updatedRows);
+            return updatedRow;
+          }}
+        />
+      </Paper>
     </div>
   );
 };
