@@ -58,7 +58,7 @@ const App = () => {
       <div>
         {status === STATUSES.INITIAL && <Button
           variant="outlined"
-          className='main-buttons'
+          sx={{ my: 1 }}
           onClick={() => {
             setStatus(STATUSES.ADDING_ITEM);
           }}>Agregar artículo</Button>
@@ -96,5 +96,4 @@ const App = () => {
 export default App;
 // TO DOS
 /**
- * 
  */
