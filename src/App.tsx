@@ -16,10 +16,11 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 
 import AddItem from './Components/AddItem/AddItem';
 import { STATUSES } from './shared/statuses';
+import { db } from './db/database';
 
 
 export interface IExpenseData {
-  id: string,
+  id: number,
   description: string,
   amount: number,
   date: string,
@@ -27,12 +28,23 @@ export interface IExpenseData {
 
 const App = () => {
   const [rowData, setRowData] = useState<IExpenseData[]>([]);
-
   const [status, setStatus] = useState(STATUSES.INITIAL);
+  
   const handleDeleteClick = (id: GridRowId) => () => {
-    setRowData(rows => {
-      return rows.filter((row) => row.id !== id); 
-    });
+    (async function() {
+
+      try {
+        // Delete from IndexedDB
+        await db.Expenses.delete(id as number);
+        
+        // Delete from React State
+        setRowData(rows => {
+          return rows.filter((row) => row.id !== id); 
+        });
+      } catch (error) {
+        console.log('Error in delete expense: ', error);
+      }
+    })();
   };
 
   const columns: GridColDef[] = [
@@ -60,21 +72,11 @@ const App = () => {
   ];
 
   useEffect(() => {
-    Promise.resolve([
-      {
-        "id": '2b12edbc-562a-447e-a8e2-8b180c77d106',
-        "description": "Frutería",
-        "amount": 10,
-        "date": "2024-12-25"
-      },
-      {
-        "id": '0c7f4650-4266-4062-b249-7da4be3c3cf3',
-        "description": "Panecito",
-        "amount": 11,
-        "date": "2024-12-26"
-      }
-    ])
-    .then((data: IExpenseData[]) => setRowData(data));
+    async function load() {
+      const expenses = await db.Expenses.toArray();
+      setRowData(expenses);
+    }
+    load();
   }, [])
 
   return (
@@ -94,13 +96,12 @@ const App = () => {
         }
       </div>
       {status === STATUSES.ADDING_ITEM && <AddItem setMainData={setRowData} setStatus={setStatus}/>}
-      <Paper sx={{ height: 400, width: '100%' }}>
+      <Paper sx={{ height: '75vh', width: '100%' }}>
         <DataGrid
           rows={rowData}
           columns={columns}
           initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
-          pageSizeOptions={[5, 10]}
-          checkboxSelection
+          pageSizeOptions={[5, 25, 50]}
           sx={{ border: 0 }}
           processRowUpdate={(updatedRow) => {
             const updatedRows = rowData.map((row) =>
