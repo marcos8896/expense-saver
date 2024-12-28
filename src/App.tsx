@@ -49,15 +49,14 @@ const App = () => {
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'description', headerName: 'Description', editable: true },
-    { field: 'amount', headerName: 'Cantidad', width: 130, editable: true },
-    { field: 'date', headerName: 'Fecha', width: 200, editable: true },
+    { field: 'description', headerName: 'Descripción', editable: true, minWidth: 250 },
+    { field: 'amount', headerName: 'Cantidad ($)', width: 100, editable: true },
+    { field: 'date', headerName: 'Fecha', width: 120, editable: true },
     {
       field: 'actions',
       type: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      cellClassName: 'actions',
+      headerName: '-',
+      width: 60,
       getActions: ({ id }) => {
         return [
           <GridActionsCellItem
@@ -101,13 +100,30 @@ const App = () => {
           rows={rowData}
           columns={columns}
           initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
-          pageSizeOptions={[5, 25, 50]}
+          autoPageSize
           sx={{ border: 0 }}
-          processRowUpdate={(updatedRow) => {
-            const updatedRows = rowData.map((row) =>
-              row.id === updatedRow.id ? { ...row, ...updatedRow } : row
-            );
-            setRowData(updatedRows);
+          processRowUpdate={(updatedRow: IExpenseData) => {
+            (async function() {
+              try {
+
+                // update database first
+                await db.Expenses.put({
+                  id: updatedRow.id,
+                  description:updatedRow.description,
+                  date: updatedRow.date,
+                  amount: updatedRow.amount
+                });
+  
+                // update React state
+                const updatedRows = rowData.map((row) =>
+                  row.id === updatedRow.id ? { ...row, ...updatedRow } : row
+                );
+                setRowData(updatedRows);
+              } catch(error) {
+                console.log('Error in update expense: ', error);
+              }
+  
+            })()
             return updatedRow;
           }}
         />
