@@ -4,8 +4,9 @@ import Button from '@mui/material/Button';
 import './AddItem.css';
 import { STATUSES } from '../../shared/statuses';
 import { IExpenseData } from '../../App';
-import { v4 as uuidv4 } from 'uuid';
+
 import { db } from '../../db/database';
+import { getCurrentLocalSortableDate } from '../../shared/dates';
 
 interface IAddItem { 
   setMainData: React.Dispatch<React.SetStateAction<IExpenseData[]>>,
@@ -13,7 +14,17 @@ interface IAddItem {
 }
 
 function AddItem({ setStatus, setMainData }: IAddItem) {
-  const [newItem, setNewItem] = useState<IExpenseData>({ id: "", description: "", amount: 0, date: "" });
+  const [newItem, setNewItem] = useState<IExpenseData>({
+    id: 0,
+    description: "",
+    amount: 0,
+    date: getCurrentLocalSortableDate()
+  });
+
+  function selectTextFromAmount() {
+    const itemAmountInput = document.querySelector('#item-amount') as HTMLInputElement;
+    itemAmountInput.select();
+  }
 
   async function addItemToDB() {
     try {
@@ -39,7 +50,8 @@ function AddItem({ setStatus, setMainData }: IAddItem) {
 
   return (
   <div className='add-item-container-inputs'>
-    <TextField 
+    <TextField
+      autoFocus
       onChange={(event) => setNewItem((prevState) => {
         return { ...prevState, description: event.target.value }
       })} 
@@ -58,11 +70,14 @@ function AddItem({ setStatus, setMainData }: IAddItem) {
         return { ...prevState, amount: +event.target.value }
       })}
       value={newItem.amount}
+      onFocus={() => {
+        selectTextFromAmount();
+      }}
       sx={{ my: 1 }}/>
       
     <TextField
       id="item-date"
-      label="Fecha"
+      label="Fecha (AAAA-MM-DD)"
       variant="outlined"
       onChange={(event) => setNewItem((prevState) => {
         return { ...prevState, date: event.target.value }

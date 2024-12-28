@@ -50,8 +50,8 @@ const App = () => {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'description', headerName: 'Descripción', editable: true, minWidth: 250 },
-    { field: 'amount', headerName: 'Cantidad ($)', width: 100, editable: true },
-    { field: 'date', headerName: 'Fecha', width: 120, editable: true },
+    { field: 'amount', headerName: 'Cantidad ($)', minWidth: 170, editable: true },
+    { field: 'date', headerName: 'Fecha', minWidth: 150, editable: true },
     {
       field: 'actions',
       type: 'actions',
@@ -81,11 +81,6 @@ const App = () => {
   return (
     <div>
       <div>
-        <button onClick={() => {
-        console.log('rowData', rowData);
-      }}>Log</button>
-      </div>
-      <div>
         {status === STATUSES.INITIAL && <Button
           variant="outlined"
           sx={{ my: 1 }}
@@ -99,8 +94,9 @@ const App = () => {
         <DataGrid
           rows={rowData}
           columns={columns}
-          initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
+          initialState={{ pagination: { paginationModel: { page: 0, pageSize: 25 } } }}
           autoPageSize
+          pageSizeOptions={[25, 50, 100]}
           sx={{ border: 0 }}
           processRowUpdate={(updatedRow: IExpenseData) => {
             (async function() {
