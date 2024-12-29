@@ -207,7 +207,7 @@ const App = () => {
         ) => {
           if (reason === 'clickaway') {
             return;
-          }
+          };
 
           setSnackbarOpen(false);
         }}
