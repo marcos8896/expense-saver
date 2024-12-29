@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 
 import Paper from '@mui/material/Paper';
 import { DataGrid, GridColDef, GridActionsCellItem, GridRowId } from '@mui/x-data-grid';
+import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 
 import AddItem from './Components/AddItem/AddItem';
@@ -33,6 +34,7 @@ const App = () => {
   const [rowData, setRowData] = useState<IExpenseData[]>([]);
   const [status, setStatus] = useState(STATUSES.INITIAL);
   const [textareaExportClipboard, setTextareaExportClipboard] = useState<string>('');
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   
   const handleDeleteClick = (id: GridRowId) => () => {
     (async function() {
@@ -128,7 +130,7 @@ const App = () => {
             sx={{ m: 1 }}
             onClick={() => {
               handleExportToClipboardForSheet()
-            }}>Export to clipboard</Button>
+            }}>Exportar a portapapeles</Button>
           }
           
           {status === STATUSES.COPY_TO_CLIPBOARD && <Button
@@ -136,7 +138,7 @@ const App = () => {
             sx={{ m: 1 }}
             onClick={() => {
               setStatus(STATUSES.INITIAL);
-            }}>Cancel</Button>
+            }}>Cancelar</Button>
           }
 
           {status === STATUSES.COPY_TO_CLIPBOARD && <Button
@@ -146,7 +148,8 @@ const App = () => {
             sx={{ m: 1 }}
             onClick={() => {
               copyToClipboard();
-            }}>Copy to clipboard</Button>
+              setSnackbarOpen(true);
+            }}>Copiar</Button>
           }
           {status === STATUSES.COPY_TO_CLIPBOARD &&
           <Box sx={{ width: '100%' }}>
@@ -168,6 +171,7 @@ const App = () => {
           autoPageSize
           pageSizeOptions={[25, 50, 100]}
           sx={{ border: 0 }}
+          localeText={{ noRowsLabel: "No hay registros guardados" }}
           processRowUpdate={(updatedRow: IExpenseData) => {
             (async function() {
               try {
@@ -194,6 +198,21 @@ const App = () => {
           }}
         />
       </Paper>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3500}
+        onClose={(
+          event: React.SyntheticEvent | Event,
+          reason?: SnackbarCloseReason,
+        ) => {
+          if (reason === 'clickaway') {
+            return;
+          }
+
+          setSnackbarOpen(false);
+        }}
+        message="Copiado a portapapeles"
+      />
     </div>
   );
 };
