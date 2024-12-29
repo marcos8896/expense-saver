@@ -74,7 +74,7 @@ const App = () => {
   function copyToClipboard() {
     const clipboard = new ClipboardJS('#button-export-clipboard');
 
-    clipboard.on('success', function(e) {
+    clipboard.on('success', function() {
       clipboard.destroy();
       setStatus(STATUSES.INITIAL);
     });
@@ -202,7 +202,7 @@ const App = () => {
         open={snackbarOpen}
         autoHideDuration={3500}
         onClose={(
-          event: React.SyntheticEvent | Event,
+          _: React.SyntheticEvent | Event,
           reason?: SnackbarCloseReason,
         ) => {
           if (reason === 'clickaway') {
