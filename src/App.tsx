@@ -17,6 +17,9 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import AddItem from './Components/AddItem/AddItem';
 import { STATUSES } from './shared/statuses';
 import { db } from './db/database';
+import ClipboardJS from 'clipboard';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 
 export interface IExpenseData {
@@ -29,6 +32,7 @@ export interface IExpenseData {
 const App = () => {
   const [rowData, setRowData] = useState<IExpenseData[]>([]);
   const [status, setStatus] = useState(STATUSES.INITIAL);
+  const [textareaExportClipboard, setTextareaExportClipboard] = useState<string>('');
   
   const handleDeleteClick = (id: GridRowId) => () => {
     (async function() {
@@ -46,6 +50,33 @@ const App = () => {
       }
     })();
   };
+
+  function handleExportToClipboardForSheet() {
+    async function load() {
+      try {
+        const expenses = await db.Expenses.toArray();
+        let strings: string[] = [];
+        expenses.forEach(expense => {
+          strings.push(`${expense.description}	$${expense.amount}	${expense.date}`)
+        })
+        const result = strings.join('\n');
+        setTextareaExportClipboard(result);
+        setStatus(STATUSES.COPY_TO_CLIPBOARD);
+      } catch (error) {
+        console.log('handleExportToClipboardForSheet error: ', error)
+      }
+    }
+    load();
+  }
+
+  function copyToClipboard() {
+    const clipboard = new ClipboardJS('#button-export-clipboard');
+
+    clipboard.on('success', function(e) {
+      clipboard.destroy();
+      setStatus(STATUSES.INITIAL);
+    });
+  }
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -80,16 +111,55 @@ const App = () => {
 
   return (
     <div>
-      <div>
+      <Box sx={{ 
+        border: '1px solid rgb(186, 186, 186)', padding: '10px', borderRadius: '10px', mb: 2,
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+       <Box>
         {status === STATUSES.INITIAL && <Button
-          variant="outlined"
-          sx={{ my: 1 }}
-          onClick={() => {
-            setStatus(STATUSES.ADDING_ITEM);
-          }}>Agregar artículo</Button>
-        }
-      </div>
+            variant="outlined"
+            sx={{ m: 1 }}
+            onClick={() => {
+              setStatus(STATUSES.ADDING_ITEM);
+            }}>Agregar artículo</Button>
+          }
+          {status === STATUSES.INITIAL && <Button
+            variant="outlined"
+            sx={{ m: 1 }}
+            onClick={() => {
+              handleExportToClipboardForSheet()
+            }}>Export to clipboard</Button>
+          }
+          
+          {status === STATUSES.COPY_TO_CLIPBOARD && <Button
+            variant="outlined"
+            sx={{ m: 1 }}
+            onClick={() => {
+              setStatus(STATUSES.INITIAL);
+            }}>Cancel</Button>
+          }
+
+          {status === STATUSES.COPY_TO_CLIPBOARD && <Button
+            variant="outlined"
+            id="button-export-clipboard"
+            data-clipboard-target="#textarea-export-clipboard"
+            sx={{ m: 1 }}
+            onClick={() => {
+              copyToClipboard();
+            }}>Copy to clipboard</Button>
+          }
+          {status === STATUSES.COPY_TO_CLIPBOARD &&
+          <Box sx={{ width: '100%' }}>
+            <Typography variant="subtitle1" component="p">
+              Copy to clipboard in Google Sheet format
+            </Typography>
+            <textarea id="textarea-export-clipboard" style={{ transform: "scale(0)" }} readOnly value={textareaExportClipboard}></textarea>
+          </Box> 
+          }
+       </Box>
+      </Box>
       {status === STATUSES.ADDING_ITEM && <AddItem setMainData={setRowData} setStatus={setStatus}/>}
+      
       <Paper sx={{ height: '75vh', width: '100%' }}>
         <DataGrid
           rows={rowData}
@@ -107,7 +177,7 @@ const App = () => {
                   id: updatedRow.id,
                   description:updatedRow.description,
                   date: updatedRow.date,
-                  amount: updatedRow.amount
+                  amount: +updatedRow.amount
                 });
   
                 // update React state
