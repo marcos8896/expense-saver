@@ -30,6 +30,11 @@ const App = () => {
   const [textareaExportClipboard, setTextareaExportClipboard] = useState<string>('');
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
+  let total = 0;
+  rowData.forEach((row) => {
+    total += row.amount;
+  });
+
   const handleDeleteClick = (id: GridRowId) => () => {
     (async function() {
 
@@ -159,7 +164,13 @@ const App = () => {
        </Box>
         {status === STATUSES.ADDING_ITEM && <AddItem setMainData={setRowData} setStatus={setStatus}/>}
       </Paper>
-      
+      <Paper sx={{ border: '1px solid rgb(186, 186, 186)', padding: '10px', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Typography variant="body1" component="p">
+            Total: <b>${total}</b>
+          </Typography>
+        </Box> 
+      </Paper>
       <Grid rowData={rowData} columns={columns} setRowData={setRowData}/>
       <Snackbar
         open={snackbarOpen}
