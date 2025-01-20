@@ -1,6 +1,6 @@
 // db.ts
 import Dexie, { type EntityTable } from 'dexie';
-import { IExpenseData } from '../App';
+import { IExpenseData } from '../shared/interfaces';
 
 const db = new Dexie('ExpensesDatabase') as Dexie & {
   Expenses: EntityTable<

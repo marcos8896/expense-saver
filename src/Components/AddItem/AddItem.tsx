@@ -3,10 +3,10 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import './AddItem.css';
 import { STATUSES } from '../../shared/statuses';
-import { IExpenseData } from '../../App';
 
 import { db } from '../../db/database';
 import { getCurrentLocalSortableDate } from '../../shared/dates';
+import { IExpenseData } from '../../shared/interfaces';
 
 interface IAddItem { 
   setMainData: React.Dispatch<React.SetStateAction<IExpenseData[]>>,
@@ -34,7 +34,7 @@ function AddItem({ setStatus, setMainData }: IAddItem) {
         date: newItem.date
       });
 
-      const newItemToInsert = {...newItem, id };
+      const newItemToInsert = {...newItem, id: +id };
         setStatus(STATUSES.INITIAL);
         setMainData((prevState) => {
           return [
