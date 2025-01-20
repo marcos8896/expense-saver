@@ -113,7 +113,7 @@ const App = () => {
 
   return (
     <div>
-      <Box sx={{ 
+      <Paper sx={{ 
         border: '1px solid rgb(186, 186, 186)', padding: '10px', borderRadius: '10px', mb: 2,
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
@@ -154,13 +154,13 @@ const App = () => {
           {status === STATUSES.COPY_TO_CLIPBOARD &&
           <Box sx={{ width: '100%' }}>
             <Typography variant="subtitle1" component="p">
-              Copy to clipboard in Google Sheet format
+              Copiar a portapapales en formato para Google Sheets
             </Typography>
             <textarea id="textarea-export-clipboard" style={{ transform: "scale(0)" }} readOnly value={textareaExportClipboard}></textarea>
           </Box> 
           }
        </Box>
-      </Box>
+      </Paper>
       {status === STATUSES.ADDING_ITEM && <AddItem setMainData={setRowData} setStatus={setStatus}/>}
       
       <Paper sx={{ height: '75vh', width: '100%' }}>
