@@ -11,7 +11,7 @@ import React, {
 import Button from '@mui/material/Button';
 
 import Paper from '@mui/material/Paper';
-import { DataGrid, GridColDef, GridActionsCellItem, GridRowId } from '@mui/x-data-grid';
+import { GridColDef, GridActionsCellItem, GridRowId } from '@mui/x-data-grid';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 
@@ -21,27 +21,21 @@ import { db } from './db/database';
 import ClipboardJS from 'clipboard';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-
-
-export interface IExpenseData {
-  id: number,
-  description: string,
-  amount: number,
-  date: string,
-}
+import Grid from './Components/Grid/Grid';
+import { IExpenseData } from './shared/interfaces';
 
 const App = () => {
   const [rowData, setRowData] = useState<IExpenseData[]>([]);
   const [status, setStatus] = useState(STATUSES.INITIAL);
   const [textareaExportClipboard, setTextareaExportClipboard] = useState<string>('');
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-  
+
   const handleDeleteClick = (id: GridRowId) => () => {
     (async function() {
 
       try {
         // Delete from IndexedDB
-        await db.Expenses.delete(id as number);
+        await db.Expenses.delete(id as any);
         
         // Delete from React State
         setRowData(rows => {
@@ -132,72 +126,41 @@ const App = () => {
               handleExportToClipboardForSheet()
             }}>Exportar a portapapeles</Button>
           }
-          
-          {status === STATUSES.COPY_TO_CLIPBOARD && <Button
-            variant="outlined"
-            sx={{ m: 1 }}
-            onClick={() => {
-              setStatus(STATUSES.INITIAL);
-            }}>Cancelar</Button>
-          }
 
-          {status === STATUSES.COPY_TO_CLIPBOARD && <Button
-            variant="outlined"
-            id="button-export-clipboard"
-            data-clipboard-target="#textarea-export-clipboard"
-            sx={{ m: 1 }}
-            onClick={() => {
-              copyToClipboard();
-              setSnackbarOpen(true);
-            }}>Copiar</Button>
-          }
           {status === STATUSES.COPY_TO_CLIPBOARD &&
-          <Box sx={{ width: '100%' }}>
-            <Typography variant="subtitle1" component="p">
-              Copiar a portapapales en formato para Google Sheets
-            </Typography>
-            <textarea id="textarea-export-clipboard" style={{ transform: "scale(0)" }} readOnly value={textareaExportClipboard}></textarea>
-          </Box> 
+            <Box sx={{ width: '100%' }}>
+              <Typography variant="subtitle1" component="p">
+                Copiar a portapapales en formato para Google Sheets
+              </Typography>
+              <textarea id="textarea-export-clipboard" style={{ transform: "scale(0)", height: 1 }} readOnly value={textareaExportClipboard}></textarea>
+            </Box> 
           }
-       </Box>
-      </Paper>
-      {status === STATUSES.ADDING_ITEM && <AddItem setMainData={setRowData} setStatus={setStatus}/>}
-      
-      <Paper sx={{ height: '75vh', width: '100%' }}>
-        <DataGrid
-          rows={rowData}
-          columns={columns}
-          initialState={{ pagination: { paginationModel: { page: 0, pageSize: 25 } } }}
-          autoPageSize
-          pageSizeOptions={[25, 50, 100]}
-          sx={{ border: 0 }}
-          localeText={{ noRowsLabel: "No hay registros guardados" }}
-          processRowUpdate={(updatedRow: IExpenseData) => {
-            (async function() {
-              try {
 
-                // update database first
-                await db.Expenses.put({
-                  id: updatedRow.id,
-                  description:updatedRow.description,
-                  date: updatedRow.date,
-                  amount: +updatedRow.amount
-                });
-  
-                // update React state
-                const updatedRows = rowData.map((row) =>
-                  row.id === updatedRow.id ? { ...row, ...updatedRow } : row
-                );
-                setRowData(updatedRows);
-              } catch(error) {
-                console.log('Error in update expense: ', error);
-              }
-  
-            })()
-            return updatedRow;
-          }}
-        />
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            {status === STATUSES.COPY_TO_CLIPBOARD && <Button
+              variant="outlined"
+              sx={{ m: 1 }}
+              onClick={() => {
+                setStatus(STATUSES.INITIAL);
+              }}>Cancelar</Button>
+            }
+
+            {status === STATUSES.COPY_TO_CLIPBOARD && <Button
+              variant="outlined"
+              id="button-export-clipboard"
+              data-clipboard-target="#textarea-export-clipboard"
+              sx={{ m: 1 }}
+              onClick={() => {
+                copyToClipboard();
+                setSnackbarOpen(true);
+              }}>Copiar</Button>
+            }
+          </Box>
+       </Box>
+        {status === STATUSES.ADDING_ITEM && <AddItem setMainData={setRowData} setStatus={setStatus}/>}
       </Paper>
+      
+      <Grid rowData={rowData} columns={columns} setRowData={setRowData}/>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3500}

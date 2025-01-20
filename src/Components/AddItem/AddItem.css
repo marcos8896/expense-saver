@@ -3,9 +3,7 @@
   flex-direction: column;
   margin-bottom: 10px;
   margin-top: 10px;
-  border: 1px solid rgb(186, 186, 186);
-  border-radius: 10px;
-  padding: 10px;
+  padding: 5px;
 }
 
 .add-item-container-buttons {
