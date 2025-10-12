@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Drawer,
   IconButton,
@@ -7,6 +7,7 @@ import {
   ListItemText,
   Box,
   Stack,
+  ListItemButton,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 
@@ -41,18 +42,19 @@ const HamburgerMenu = () => {
         >
           <List>
             {menuOptions.map((option) => (
-              <ListItem
-                key={option.id}
-                button
-                sx={{
-                  backgroundColor: "#fff",
-                  "&:hover": {
-                    cursor: "pointer",
-                  },
-                  border: "none",
-                }}
-              >
-                <ListItemText primary={option.label} />
+              <ListItem key={option.id} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setOpen(false); // close drawer when clicking item
+                  }}
+                  sx={{
+                    backgroundColor: "#fff",
+                    "&:hover": { cursor: "pointer" },
+                    border: "none",
+                  }}
+                >
+                  <ListItemText primary={option.label} />
+                </ListItemButton>
               </ListItem>
             ))}
           </List>
