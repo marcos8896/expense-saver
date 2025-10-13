@@ -23,6 +23,11 @@ const HamburgerMenu = () => {
       <Box
         sx={{
           display: { xs: "block", md: "none" },
+          boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 6px",
+          margin: "0 0 15px 0",
+          borderBottomRightRadius: "5px",
+          borderBottomLeftRadius: "5px",
+          borderBottom: "1px solid #d5d5d5",
         }}
       >
         <IconButton onClick={toggleDrawer(true)} color="inherit">
@@ -67,6 +72,11 @@ const HamburgerMenu = () => {
         spacing={2}
         sx={{
           display: { xs: "none", md: "flex" },
+          boxShadow: "rgba(0, 0, 0, 0.2) 0px 3px 6px",
+          margin: "0 0 15px 0",
+          borderBottomRightRadius: "5px",
+          borderBottomLeftRadius: "5px",
+          borderBottom: "1px solid #d5d5d5",
         }}
       >
         {menuOptions.map((option) => (
