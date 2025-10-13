@@ -20,6 +20,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "./Components/Grid/Grid";
 import { IExpenseData } from "./shared/interfaces";
+import HamburgerMenu from "./Components/HamburgerMenu/HamburgerMenu";
 
 const App = () => {
   const [rowData, setRowData] = useState<IExpenseData[]>([]);
@@ -121,6 +122,7 @@ const App = () => {
 
   return (
     <div>
+      <HamburgerMenu />
       <Paper
         sx={{
           border: "1px solid rgb(186, 186, 186)",
